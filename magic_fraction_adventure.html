@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Pecahan Ajaib - Matematika Kelas 4 SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Configuration for Dynamic Rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .heading-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#FFFBEB] via-[#F0FDF4] to-[#EFF6FF] min-h-screen flex flex-col justify-between overflow-x-hidden select-none">
+
+    <!-- HEADER NAVIGATION BAR -->
+    <header class="bg-white/90 backdrop-blur-md border-b-4 border-[#34D399] py-3 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-amber-100 p-2 rounded-2xl text-amber-600 animate-bounce">
+                <span class="text-2xl">✨</span>
+            </div>
+            <div>
+                <h1 class="heading-font text-xl md:text-2xl font-bold text-[#D97706]">Pecahan Ajaib</h1>
+                <p class="text-[10px] text-emerald-600 font-bold tracking-widest uppercase">Misi Mandiri • Kelas 4 SD Fast-Learning</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <!-- XP Badge -->
+            <div class="bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-1 flex items-center gap-1.5 shadow-sm">
+                <span class="text-sm">💎</span>
+                <span id="score-display" class="font-bold text-amber-800 text-xs md:text-sm">0 XP</span>
+            </div>
+            
+            <!-- Scratchpad Toggle -->
+            <button onclick="toggleScratchpad()" class="bg-[#EEF2FF] hover:bg-[#E0E7FF] border-2 border-[#6366F1] active:scale-95 transition text-[#4F46E5] font-bold rounded-xl px-3 py-1 text-xs md:text-sm shadow-sm flex items-center gap-1">
+                ✏️ <span class="hidden sm:inline">Cakar Hitung</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- SCRATCHPAD DRAWING OVERLAY -->
+    <div id="scratchpad" class="hidden fixed inset-0 z-50 bg-white/95 flex flex-col p-4">
+        <div class="flex justify-between items-center mb-2 border-b-2 border-gray-100 pb-2">
+            <h3 class="heading-font text-lg font-bold text-[#4F46E5] flex items-center gap-2">
+                ✏️ Papan Cakar Berhitung Mandiri
+            </h3>
+            <div class="flex items-center gap-2">
+                <button onclick="clearCanvas()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-xl text-xs">Bersihkan</button>
+                <button onclick="toggleScratchpad()" class="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold px-4 py-1.5 rounded-xl text-xs">Kembali</button>
+            </div>
+        </div>
+        <div class="flex-1 bg-amber-50/20 border-4 border-dashed border-[#818CF8] rounded-2xl relative cursor-crosshair overflow-hidden">
+            <canvas id="scratch-canvas" class="absolute inset-0 w-full h-full"></canvas>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 text-center">Gunakan jari atau mouse di atas untuk melatih oret-oretan KPK pecahanmu.</p>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT PANEL: STATS & LIST OF 15 QUESTIONS -->
+        <section class="lg:col-span-4 bg-white rounded-3xl border-4 border-[#FDE047] shadow-xl p-5 space-y-5">
+            <!-- Progress Tracker -->
+            <div>
+                <h3 class="heading-font text-base font-bold text-gray-700 mb-2 flex justify-between">
+                    <span>Misi Petualang</span>
+                    <span id="completion-text" class="text-amber-600">0/15 Selesai</span>
+                </h3>
+                <div class="w-full bg-gray-100 rounded-full h-3.5 overflow-hidden">
+                    <div id="overall-progress" class="bg-gradient-to-r from-amber-400 to-[#10B981] h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+                    <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+                        <p class="text-gray-500 font-semibold">Benar</p>
+                        <p id="stats-correct" class="font-extrabold text-emerald-600 text-base">0</p>
+                    </div>
+                    <div class="bg-red-50 p-2 rounded-xl border border-red-100">
+                        <p class="text-gray-500 font-semibold">Salah</p>
+                        <p id="stats-wrong" class="font-extrabold text-red-500 text-base">0</p>
+                    </div>
+                    <div class="bg-indigo-50 p-2 rounded-xl border border-indigo-100">
+                        <p class="text-gray-500 font-semibold">Akurasi</p>
+                        <p id="stats-accuracy" class="font-extrabold text-indigo-600 text-base">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Badge Indicator -->
+            <div class="bg-gradient-to-r from-[#FEF3C7] to-[#D1FAE5] border-2 border-amber-300 p-3 rounded-2xl flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] uppercase font-black tracking-widest text-amber-800">Gelar Petualang</p>
+                    <h4 id="rank-name" class="heading-font text-sm font-bold text-emerald-800">Taruna Pecahan</h4>
+                </div>
+                <span id="rank-icon" class="text-3xl">🛡️</span>
+            </div>
+
+            <!-- Question Numbers Grid -->
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Peta Tantangan</span>
+                    <span class="text-[9px] text-gray-400">Pilih Nomor untuk Melompat</span>
+                </p>
+                <div id="grid-numbers" class="grid grid-cols-5 gap-2 p-1 border rounded-xl bg-gray-50">
+                    <!-- Loaded dynamically in JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: CURRENT QUESTION CARDS -->
+        <section class="lg:col-span-8 space-y-6">
+            <div class="bg-white rounded-3xl border-8 border-[#FDE047] shadow-xl overflow-hidden flex flex-col justify-between min-h-[500px]">
+                
+                <!-- Slide Header Banner -->
+                <div class="bg-amber-50/50 border-b-2 border-amber-100 px-6 py-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span id="icon-emoji" class="text-3xl">🍰</span>
+                        <div>
+                            <span id="question-badge" class="bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">Level 1</span>
+                            <h2 id="question-header-title" class="heading-font text-lg md:text-xl font-bold text-slate-800 mt-1">Soal No. 1</h2>
+                        </div>
+                    </div>
+                    <span id="question-points" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-lg">+10 XP</span>
+                </div>
+
+                <!-- Slide Content & Formulas -->
+                <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+                    <p id="question-text" class="text-base md:text-lg text-slate-700 leading-relaxed font-semibold mb-6">
+                        Sedang memuat petualangan ajaib...
+                    </p>
+
+                    <!-- Multiple Choices Options container -->
+                    <div id="choices-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        <!-- Loaded dynamically -->
+                    </div>
+
+                    <!-- Discussion / Explanation Block -->
+                    <div id="discussion-panel" class="hidden bg-emerald-50/80 border-l-4 border-emerald-500 rounded-r-xl p-5 space-y-3 transition-all">
+                        <h4 class="font-black text-emerald-900 flex items-center gap-2 text-sm">
+                            💡 Pembahasan Kunci Ajaib:
+                        </h4>
+                        <div id="discussion-text" class="text-xs md:text-sm text-emerald-950 leading-relaxed space-y-2">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="bg-amber-50 border-t-2 border-amber-100 px-6 py-4 flex justify-between items-center">
+                    <button onclick="navigateQuestion(-1)" id="prev-btn" class="bg-white hover:bg-[#FFFDF5] text-amber-600 font-bold px-4 py-2 rounded-xl text-xs md:text-sm border border-amber-200 transition active:scale-95">
+                        ◀ Sebelumnya
+                    </button>
+                    <div class="text-xs font-bold text-slate-500">
+                        Tantangan <span id="active-index">1</span> / 15
+                    </div>
+                    <button onclick="navigateQuestion(1)" id="next-btn" class="bg-white hover:bg-[#FFFDF5] text-amber-600 font-bold px-4 py-2 rounded-xl text-xs md:text-sm border border-amber-200 transition active:scale-95">
+                        Selanjutnya ▶
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING TOAST NOTIFICATION -->
+    <div id="toast" class="hidden fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-[#10B981] text-white font-bold px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
+        <span id="toast-icon">✨</span> <span id="toast-text">Luar biasa! Jawabanmu benar!</span>
+    </div>
+
+    <!-- CONFETTI CELEBRATION CANVAS -->
+    <canvas id="confetti" class="fixed inset-0 pointer-events-none z-50 w-full h-full hidden"></canvas>
+
+    <footer class="bg-white border-t border-gray-100 py-3 text-center text-[10px] text-gray-400 font-bold">
+        Petualangan Pecahan Ajaib © 2026 • Kurikulum Dasar Matematika & Fast-Learning Challenge
+    </footer>
+
+    <!-- MAIN SYSTEM SCRIPTS -->
+    <script>
+        // --- 1. SOAL DATABASE (15 DRILLS - PENJUMLAHAN & PENGURANGAN PECAHAN) ---
+        const questionsDb = [
+            {
+                id: 1,
+                category: "Dasar",
+                catName: "Penyebut Sama",
+                points: 10,
+                icon: "🍰",
+                text: "Budi memiliki kue cokelat lezat. Ia memotong kue itu menjadi beberapa bagian sama besar. Budi memberikan $\\frac{3}{8}$ bagian kepada Andi, dan memberikan $\\frac{2}{8}$ bagian kepada Cici. Berapa bagian kue cokelat yang telah dibagikan oleh Budi?",
+                choices: [
+                    { key: "A", text: "$\\frac{1}{8}$ bagian" },
+                    { key: "B", text: "$\\frac{5}{8}$ bagian", isCorrect: true },
+                    { key: "C", text: "$\\frac{6}{8}$ bagian" },
+                    { key: "D", text: "$\\frac{5}{16}$ bagian" }
+                ],
+                discussion: "Karena kue dibagikan, kita menjumlahkan pecahan tersebut. Beruntung sekali, penyebutnya sudah sama (yaitu 8)!<br>$$\\frac{3}{8} + \\frac{2}{8} = \\frac{3 + 2}{8} = \\frac{5}{8}$$<br>Jadi, total kue cokelat yang sudah dibagikan adalah **$\\frac{5}{8}$ bagian**."
+            },
+            {
+                id: 2,
+                category: "Dasar",
+                catName: "Penyebut Sama",
+                points: 10,
+                icon: "🧪",
+                text: "Sebuah botol air ramuan sihir peri berisi $\\frac{7}{10}$ liter cairan terbang. Setelah diminum oleh peri kecil, cairan sihir di dalam botol tersebut kini hanya tersisa $\\frac{3}{10}$ liter. Berapa liter cairan ramuan terbang yang telah diminum oleh peri kecil?",
+                choices: [
+                    { key: "A", text: "$\\frac{4}{10}$ liter (atau $\\frac{2}{5}$ liter)", isCorrect: true },
+                    { key: "B", text: "$\\frac{10}{10}$ liter" },
+                    { key: "C", text: "$\\frac{4}{20}$ liter" },
+                    { key: "D", text: "$\\frac{3}{10}$ liter" }
+                ],
+                discussion: "Untuk mencari jumlah cairan yang berkurang (diminum), kita kurangi isi awal dengan isi sisa botol:<br>$$\\frac{7}{10} - \\frac{3}{10} = \\frac{7 - 3}{10} = \\frac{4}{10}$$<br>Jika disederhanakan dengan membagi pembilang dan penyebut dengan angka 2, kita dapatkan **$\\frac{2}{5}$ liter**."
+            },
+            {
+                id: 3,
+                category: "Menengah",
+                catName: "Penyebut Berbeda",
+                points: 10,
+                icon: "🎗️",
+                text: "Rara sedang membuat hiasan kado yang indah. Ia menggabungkan pita merah muda sepanjang $\\frac{1}{2}$ meter dengan pita kuning sepanjang $\\frac{1}{4}$ meter. Berapakah panjang total gabungan kedua pita Rara tersebut?",
+                choices: [
+                    { key: "A", text: "$\\frac{2}{6}$ meter" },
+                    { key: "B", text: "$\\frac{2}{4}$ meter" },
+                    { key: "C", text: "$\\frac{3}{4}$ meter", isCorrect: true },
+                    { key: "D", text: "$\\frac{1}{2}$ meter" }
+                ],
+                discussion: "Kita harus menjumlahkan pita merah muda dan kuning: $\\frac{1}{2} + \\frac{1}{4}$.<br>Karena penyebutnya berbeda (2 dan 4), kita ubah dahulu agar penyebutnya sama (cari KPK dari 2 dan 4, yaitu 4):<br>$$\\frac{1}{2} = \\frac{2}{4}$$<br>Sekarang jumlahkan pecahan baru tersebut:<br>$$\\frac{2}{4} + \\frac{1}{4} = \\frac{3}{4}\\text{ meter}$$"
+            },
+            {
+                id: 4,
+                category: "HOTS",
+                catName: "Tantangan 3 Langkah",
+                points: 15,
+                icon: "🍕",
+                text: "Satu loyang pizza utuh dipotong untuk makan malam keluarga Kiko. Kiko memakan $\\frac{1}{2}$ bagian pizza, lalu adiknya memakan $\\frac{1}{3}$ bagian. Berapakah sisa bagian pizza utuh yang tersisa di atas piring sekarang?",
+                choices: [
+                    { key: "A", text: "$\\frac{1}{6}$ bagian", isCorrect: true },
+                    { key: "B", text: "$\\frac{5}{6}$ bagian" },
+                    { key: "C", text: "$\\frac{2}{5}$ bagian" },
+                    { key: "D", text: "$\\frac{1}{5}$ bagian" }
+                ],
+                discussion: "Satu loyang pizza utuh melambangkan angka bulat **1**.<br>Langkah 1: Hitung total pizza yang dimakan Kiko dan adiknya:<br>$$\\frac{1}{2} + \\frac{1}{3} = \\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}\\text{ bagian}$$<br>Langkah 2: Kurangi pizza utuh (1) dengan bagian yang sudah dimakan:<br>$$1 - \\frac{5}{6} = \\frac{6}{6} - \\frac{5}{6} = \\frac{1}{6}\\text{ bagian sisa}$$"
+            },
+            {
+                id: 5,
+                category: "Menengah",
+                catName: "Penyebut Kelipatan",
+                points: 10,
+                icon: "🧙",
+                text: "Seorang penyihir cilik sedang meramu obat kuat ajaib. Ia mencampur $\\frac{2}{5}$ cangkir ekstrak air mata naga dengan $\\frac{3}{10}$ cangkir bubuk bintang kejora. Berapakah total volume campuran ramuan tersebut?",
+                choices: [
+                    { key: "A", text: "$\\frac{5}{10}$ cangkir" },
+                    { key: "B", text: "$\\frac{7}{10}$ cangkir", isCorrect: true },
+                    { key: "C", text: "$\\frac{5}{15}$ cangkir" },
+                    { key: "D", text: "$\\frac{4}{5}$ cangkir" }
+                ],
+                discussion: "Jumlahkan kedua bahan: $\\frac{2}{5} + \\frac{3}{10}$.<br>Ubah penyebut pecahan pertama agar sama dengan penyebut kedua (KPK 5 dan 10 adalah 10):<br>$$\\frac{2}{5} = \\frac{4}{10}$$<br>Jumlahkan ramuan sihirnya:<br>$$\\frac{4}{10} + \\frac{3}{10} = \\frac{7}{10}\\text{ cangkir}$$"
+            },
+            {
+                id: 6,
+                category: "Menengah",
+                catName: "Bilangan Bulat",
+                points: 10,
+                icon: "🍓",
+                text: "Paman memetik 2 keranjang penuh stroberi segar di kebun. Ketika ditinggal, sepupu memakan $\\frac{3}{4}$ keranjang stroberi tersebut secara sembunyi-sembunyi. Berapa keranjang stroberi paman yang tersisa sekarang?",
+                choices: [
+                    { key: "A", text: "$1\\frac{1}{4}$ keranjang", isCorrect: true },
+                    { key: "B", text: "$1\\frac{3}{4}$ keranjang" },
+                    { key: "C", text: "$\\frac{1}{4}$ keranjang" },
+                    { key: "D", text: "$2\\frac{1}{4}$ keranjang" }
+                ],
+                discussion: "Kurangkan isi keranjang stroberi: $2 - \\frac{3}{4}$.<br>Ubah angka bulat 2 menjadi pecahan berpenyebut 4:<br>$$2 = \\frac{8}{4}$$<br>Kurangkan pecahannya:<br>$$\\frac{8}{4} - \\frac{3}{4} = \\frac{5}{4}\\text{ keranjang}$$<br>Ubah ke pecahan campuran: $\\frac{5}{4} = 1\\frac{1}{4}$ keranjang stroberi tersisa."
+            },
+            {
+                id: 7,
+                category: "Menengah",
+                catName: "Penyebut Campur Kelipatan",
+                points: 10,
+                icon: "🍫",
+                text: "Tika memakan $\\frac{1}{6}$ batang cokelat susu, Adi memakan $\\frac{2}{6}$ batang cokelat, sedangkan Deni memakan cokelat sepanjang $\\frac{1}{3}$ batang. Berapa bagian total cokelat batang yang sudah dimakan mereka bertiga?",
+                choices: [
+                    { key: "A", text: "$\\frac{4}{15}$ batang" },
+                    { key: "B", text: "$\\frac{5}{6}$ batang", isCorrect: true },
+                    { key: "C", text: "$\\frac{3}{6}$ batang" },
+                    { key: "D", text: "1 batang utuh" }
+                ],
+                discussion: "Tantangan penjumlahan tiga pecahan: $\\frac{1}{6} + \\frac{2}{6} + \\frac{1}{3}$.<br>Ubah pecahan terakhir ($\\frac{1}{3}$) agar berpenyebut 6:<br>$$\\frac{1}{3} = \\frac{2}{6}$$<br>Sekarang kita jumlahkan ketiganya:<br>$$\\frac{1}{6} + \\frac{2}{6} + \\frac{2}{6} = \\frac{1 + 2 + 2}{6} = \\frac{5}{6}\\text{ batang cokelat}$$"
+            },
+            {
+                id: 8,
+                category: "Menengah",
+                catName: "Penyebut Berbeda",
+                points: 10,
+                icon: "🌸",
+                text: "Di taman bunga peri, sebidang tanah sedang ditanami mawar dan melati. Peri mawar menanam mawar di $\\frac{3}{5}$ bagian taman, sedangkan peri melati menanam melati di $\\frac{1}{10}$ bagian taman. Berapakah selisih luas lahan mawar dengan melati?",
+                choices: [
+                    { key: "A", text: "$\\frac{1}{2}$ bagian", isCorrect: true },
+                    { key: "B", text: "$\\frac{2}{5}$ bagian" },
+                    { key: "C", text: "$\\frac{4}{10}$ bagian" },
+                    { key: "D", text: "$\\frac{2}{10}$ bagian" }
+                ],
+                discussion: "Cari selisih luas dengan cara mengurangi mawar dengan melati: $\\frac{3}{5} - \\frac{1}{10}$.<br>Samakan penyebutnya menjadi 10:<br>$$\\frac{3}{5} = \\frac{6}{10}$$<br>Lakukan pengurangan pecahan:<br>$$\\frac{6}{10} - \\frac{1}{10} = \\frac{5}{10}$$<br>Sederhanakan dengan membagi 5 pada pembilang dan penyebut: **$\\frac{1}{2}$ bagian**."
+            },
+            {
+                id: 9,
+                category: "Menengah",
+                catName: "Penyebut Berbeda",
+                points: 10,
+                icon: "🎋",
+                text: "Doni sedang mengerjakan prakarya anyaman bambu bermotif naga. Di pagi hari ia berhasil menyelesaikan $\\frac{2}{3}$ bagian anyaman, lalu di siang hari ia menambah lagi $\\frac{1}{6}$ bagian. Berapa total bagian anyaman yang berhasil diselesaikan Doni?",
+                choices: [
+                    { key: "A", text: "$\\frac{3}{9}$ bagian" },
+                    { key: "B", text: "$\\frac{5}{6}$ bagian", isCorrect: true },
+                    { key: "C", text: "$\\frac{4}{6}$ bagian" },
+                    { key: "D", text: "$\\frac{1}{2}$ bagian" }
+                ],
+                discussion: "Jumlahkan hasil kerja anyaman pagi dan siang Doni: $\\frac{2}{3} + \\frac{1}{6}$.<br>Ubah penyebut 3 menjadi 6 dengan mengalikan pembilang dan penyebut dengan angka 2:<br>$$\\frac{2}{3} = \\frac{4}{6}$$<br>Lakukan penjumlahan pecahan:<br>$$\\frac{4}{6} + \\frac{1}{6} = \\frac{5}{6}\\text{ bagian anyaman}$$"
+            },
+            {
+                id: 10,
+                category: "HOTS",
+                catName: "Pengurangan Bertingkat",
+                points: 15,
+                icon: "🥛",
+                text: "Sebuah kotak susu segar ukuran jumbo awalnya berisi penuh susu cokelat. Soni meminum $\\frac{2}{9}$ bagian susu tersebut dan Dina meminum $\\frac{1}{3}$ bagian. Berapakah sisa isi susu cokelat di dalam kotak tersebut sekarang?",
+                choices: [
+                    { key: "A", text: "$\\frac{3}{9}$ bagian" },
+                    { key: "B", text: "$\\frac{4}{9}$ bagian", isCorrect: true },
+                    { key: "C", text: "$\\frac{5}{9}$ bagian" },
+                    { key: "D", text: "$\\frac{1}{3}$ bagian" }
+                ],
+                discussion: "Kotak susu penuh digambarkan dengan angka **1**.<br>Langkah 1: Samakan penyebut bagian minum Dina ($\\frac{1}{3}$) menjadi per-9:<br>$$\\frac{1}{3} = \\frac{3}{9}$$<br>Langkah 2: Kurangkan susu penuh (1 atau $\\frac{9}{9}$) dengan bagian minum Soni dan Dina:<br>$$\\frac{9}{9} - \\frac{2}{9} - \\frac{3}{9} = \\frac{9 - 2 - 3}{9} = \\frac{4}{9}\\text{ bagian sisa}$$"
+            },
+            {
+                id: 11,
+                category: "HOTS",
+                catName: "Pecahan Campuran",
+                points: 15,
+                icon: "🚀",
+                text: "Sebuah roket astronot cilik terbang selama $\\frac{3}{4}$ jam menuju stasiun luar angkasa pertama, lalu melanjutkan perjalanan menuju stasiun kedua selama $\\frac{5}{8}$ jam. Berapa total waktu perjalanan roket tersebut dalam satuan jam?",
+                choices: [
+                    { key: "A", text: "$1\\frac{3}{8}$ jam", isCorrect: true },
+                    { key: "B", text: "$1\\frac{1}{8}$ jam" },
+                    { key: "C", text: "$\\frac{8}{12}$ jam" },
+                    { key: "D", text: "$1\\frac{1}{2}$ jam" }
+                ],
+                discussion: "Jumlahkan kedua waktu terbang roket: $\\frac{3}{4} + \\frac{5}{8}$.<br>Ubah pecahan pertama agar penyebutnya menjadi 8:<br>$$\\frac{3}{4} = \\frac{6}{8}$$<br>Jumlahkan pecahan baru:<br>$$\\frac{6}{8} + \\frac{5}{8} = \\frac{11}{8}\\text{ jam}$$<br>Ubah ke pecahan campuran: $\\frac{11}{8} = 1\\frac{3}{8}$ jam."
+            },
+            {
+                id: 12,
+                category: "HOTS",
+                catName: "Pengurangan 3 Pecahan",
+                points: 15,
+                icon: "🌈",
+                text: "Kayla memiliki adonan slime pelangi sebesar $\\frac{5}{6}$ kg. Ia memberikan $\\frac{1}{2}$ kg slime kepada adiknya untuk bermain bersama, lalu slime Kayla kehilangan $\\frac{1}{6}$ kg karena kering tertiup angin. Berapa kg sisa slime Kayla sekarang?",
+                choices: [
+                    { key: "A", text: "$\\frac{1}{6}$ kg", isCorrect: true },
+                    { key: "B", text: "$\\frac{3}{6}$ kg" },
+                    { key: "C", text: "$\\frac{2}{6}$ kg" },
+                    { key: "D", text: "$\\frac{1}{2}$ kg" }
+                ],
+                discussion: "Kurangi berat slime mula-mula: $\\frac{5}{6} - \\frac{1}{2} - \\frac{1}{6}$.<br>Langkah 1: Ubah penyebut pecahan kedua ($\\frac{1}{2}$) menjadi per-6:<br>$$\\frac{1}{2} = \\frac{3}{6}$$<br>Langkah 2: Lakukan pengurangan bertahap berpenyebut sama:<br>$$\\frac{5}{6} - \\frac{3}{6} - \\frac{1}{6} = \\frac{5 - 3 - 1}{6} = \\frac{1}{6}\\text{ kg slime}$$"
+            },
+            {
+                id: 13,
+                category: "HOTS",
+                catName: "Konstruksi Balok Lego",
+                points: 15,
+                icon: "🧱",
+                text: "Untuk membuat jembatan mainan Lego sepanjang 1 meter, Leo menggabungkan balok Lego merah sepanjang $\\frac{2}{5}$ meter dengan balok Lego biru sepanjang $\\frac{3}{10}$ meter. Berapa meter lagi balok Lego hijau yang Leo butuhkan untuk menyelesaikan jembatannya?",
+                choices: [
+                    { key: "A", text: "$\\frac{3}{10}$ meter", isCorrect: true },
+                    { key: "B", text: "$\\frac{5}{10}$ meter" },
+                    { key: "C", text: "$\\frac{2}{5}$ meter" },
+                    { key: "D", text: "$\\frac{1}{10}$ meter" }
+                ],
+                discussion: "Panjang total jembatan Lego adalah **1** meter.<br>Langkah 1: Jumlahkan panjang blok merah dan biru: $\\frac{2}{5} + \\frac{3}{10}$.<br>Ubah pecahan pertama menjadi per-10:<br>$$\\frac{2}{5} = \\frac{4}{10} \\implies \\frac{4}{10} + \\frac{3}{10} = \\frac{7}{10}\\text{ meter}$$<br>Langkah 2: Cari sisa panjang hijau dengan cara dikurangi:<br>$$1 - \\frac{7}{10} = \\frac{10}{10} - \\frac{7}{10} = \\frac{3}{10}\\text{ meter}$$"
+            },
+            {
+                id: 14,
+                category: "HOTS",
+                catName: "Campuran Operasi",
+                points: 15,
+                icon: "🐹",
+                text: "Kolam renang mini hamster milik Kimi awalnya telah berisi air sebanyak $\\frac{1}{8}$ bagian. Kimi menambahkan air sebanyak $\\frac{3}{4}$ bagian ke dalam kolam tersebut, namun sayang kolam bocor sehingga air berkurang sebanyak $\\frac{1}{2}$ bagian. Berapa bagian air di kolam hamster sekarang?",
+                choices: [
+                    { key: "A", text: "$\\frac{3}{8}$ bagian", isCorrect: true },
+                    { key: "B", text: "$\\frac{5}{8}$ bagian" },
+                    { key: "C", text: "$\\frac{1}{8}$ bagian" },
+                    { key: "D", text: "$\\frac{7}{8}$ bagian" }
+                ],
+                discussion: "Tuliskan operasi matematikanya: $\\frac{1}{8} + \\frac{3}{4} - \\frac{1}{2}$.<br>Langkah 1: Ubah semua pecahan agar berpenyebut sama (penyebutnya adalah 8):<br>$$\\frac{3}{4} = \\frac{6}{8} \\quad \\text{dan} \\quad \\frac{1}{2} = \\frac{4}{8}$$<br>Langkah 2: Selesaikan operasinya:<br>$$\\frac{1}{8} + \\frac{6}{8} - \\frac{4}{8} = \\frac{1 + 6 - 4}{8} = \\frac{3}{8}\\text{ bagian air}$$"
+            },
+            {
+                id: 15,
+                category: "HOTS",
+                catName: "Misi Harta Emas",
+                points: 15,
+                icon: "🪙",
+                text: "Peti harta karun rahasia menyimpan $\\frac{9}{10}$ kg koin emas murni. Bajak laut mengambil koin seberat $\\frac{2}{5}$ kg, lalu kurcaci cerdik mengambil lagi $\\frac{3}{10}$ kg. Berapa bagian koin emas yang masih tersisa di dalam peti?",
+                choices: [
+                    { key: "A", text: "$\\frac{1}{5}$ bagian (atau $\\frac{2}{10}$ bagian)", isCorrect: true },
+                    { key: "B", text: "$\\frac{4}{10}$ bagian" },
+                    { key: "C", text: "$\\frac{3}{10}$ bagian" },
+                    { key: "D", text: "$\\frac{1}{10}$ bagian" }
+                ],
+                discussion: "Tuliskan operasi matematikanya: $\\frac{9}{10} - \\frac{2}{5} - \\frac{3}{10}$.<br>Langkah 1: Ubah pecahan kedua ($\\frac{2}{5}$) agar berpenyebut 10:<br>$$\\frac{2}{5} = \\frac{4}{10}$$<br>Langkah 2: Selesaikan pengurangan pecahannya:<br>$$\\frac{9}{10} - \\frac{4}{10} - \\frac{3}{10} = \\frac{9 - 4 - 3}{10} = \\frac{2}{10}\\text{ bagian}$$<br>Sederhanakan dengan membagi pembilang dan penyebut dengan angka 2, sehingga diperoleh **$\\frac{1}{5}$ bagian**."
+            }
+        ];
+
+        // --- 2. APP STATE SYSTEM ---
+        let currentIdx = 0; 
+        let score = 0;
+        const userAnswers = {}; // { qId: { selectedKey: string, isCorrect: boolean } }
+
+        // --- 3. WEB AUDIO SYNTHESIZER FOR APP AUDIO ---
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+                    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.3); // C6
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.35);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.08);
+                }
+            } catch (e) {
+                console.log("Audio API not supported in this frame environment.");
+            }
+        }
+
+        // --- 4. ENGINE INITIALIZATION ---
+        window.onload = function() {
+            renderNumbersGrid();
+            loadQuestion(0);
+            initScratchpad();
+        };
+
+        // Render sidebar question selection maps
+        function renderNumbersGrid() {
+            const gridContainer = document.getElementById('grid-numbers');
+            gridContainer.innerHTML = '';
+            
+            questionsDb.forEach((q, idx) => {
+                let bgStyle = 'bg-white hover:bg-amber-50 text-slate-700 border-amber-200';
+                if (userAnswers[q.id]) {
+                    if (userAnswers[q.id].isCorrect) {
+                        bgStyle = 'bg-emerald-500 text-white border-emerald-600';
+                    } else {
+                        bgStyle = 'bg-red-500 text-white border-red-600';
+                    }
+                }
+                
+                const isCurrent = (questionsDb[currentIdx].id === q.id);
+                const activeRing = isCurrent ? 'ring-4 ring-indigo-500 font-extrabold scale-105 z-10' : '';
+
+                const btn = document.createElement('button');
+                btn.className = `border-2 p-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center h-10 ${bgStyle} ${activeRing}`;
+                btn.innerHTML = `<span>${q.id}</span>`;
+                btn.onclick = () => {
+                    playSound('click');
+                    loadQuestion(idx);
+                };
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // Load questions dynamically
+        function loadQuestion(index) {
+            if (index < 0 || index >= questionsDb.length) return;
+            currentIdx = index;
+
+            const q = questionsDb[currentIdx];
+
+            // Render basic details
+            document.getElementById('question-header-title').innerText = `Tantangan No. ${q.id}`;
+            document.getElementById('question-badge').innerText = `Level ${q.category}`;
+            document.getElementById('question-text').innerHTML = q.text;
+            document.getElementById('active-index').innerText = currentIdx + 1;
+            document.getElementById('icon-emoji').innerText = q.icon;
+            document.getElementById('question-points').innerText = `+${q.points} XP`;
+
+            // Render choices
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+
+            q.choices.forEach(c => {
+                const btn = document.createElement('button');
+                btn.id = `choice-${c.key}`;
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all duration-200 active:scale-95 flex items-center gap-3";
+                
+                const keyBadge = `<span class="bg-indigo-100 text-indigo-700 font-black px-2.5 py-1 rounded-lg text-xs">${c.key}</span>`;
+                btn.innerHTML = `${keyBadge} <span class="text-sm font-semibold text-slate-700">${c.text}</span>`;
+                
+                btn.onclick = () => selectAnswer(c.key);
+                choicesContainer.appendChild(btn);
+            });
+
+            // Adjust navigation arrow controls
+            document.getElementById('prev-btn').disabled = (currentIdx === 0);
+            document.getElementById('next-btn').disabled = (currentIdx === questionsDb.length - 1);
+            document.getElementById('prev-btn').style.opacity = (currentIdx === 0) ? "0.4" : "1";
+            document.getElementById('next-btn').style.opacity = (currentIdx === questionsDb.length - 1) ? "0.4" : "1";
+
+            // If answered, show explanation panel
+            const prevAns = userAnswers[q.id];
+            const discPanel = document.getElementById('discussion-panel');
+            if (prevAns) {
+                discPanel.classList.remove('hidden');
+                document.getElementById('discussion-text').innerHTML = q.discussion;
+                
+                q.choices.forEach(c => {
+                    const btn = document.getElementById(`choice-${c.key}`);
+                    if (btn) {
+                        btn.disabled = true;
+                        if (c.isCorrect) {
+                            btn.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 flex items-center gap-3";
+                        } else if (c.key === prevAns.selectedKey) {
+                            btn.className = "w-full text-left p-4 rounded-2xl border-2 border-red-400 bg-red-50 flex items-center gap-3";
+                        }
+                    }
+                });
+            } else {
+                discPanel.classList.add('hidden');
+            }
+
+            renderNumbersGrid();
+
+            // Re-render LaTeX mathematics formulas
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // Handle answer selection
+        function selectAnswer(key) {
+            const q = questionsDb[currentIdx];
+            if (userAnswers[q.id]) return; 
+
+            const chosen = q.choices.find(c => c.key === key);
+            const isCorrect = !!chosen.isCorrect;
+
+            userAnswers[q.id] = {
+                selectedKey: key,
+                isCorrect: isCorrect
+            };
+
+            if (isCorrect) {
+                playSound('correct');
+                score += q.points;
+                document.getElementById('score-display').innerText = `${score} XP`;
+                showToast("✨ Wah, hebat sekali! Jawabannya benar!", "bg-[#10B981]");
+                triggerConfetti();
+            } else {
+                playSound('wrong');
+                showToast("❌ Kurang tepat, lihat tips pembahasannya!", "bg-red-500");
+            }
+
+            loadQuestion(currentIdx);
+            updateAnalytics();
+        }
+
+        // Calculate stats
+        function updateAnalytics() {
+            const total = questionsDb.length;
+            const answeredKeys = Object.keys(userAnswers);
+            const answeredCount = answeredKeys.length;
+            
+            // Progress Bar
+            const percent = (answeredCount / total) * 100;
+            document.getElementById('overall-progress').style.width = `${percent}%`;
+            document.getElementById('completion-text').innerText = `${answeredCount}/${total} Selesai`;
+
+            let correct = 0;
+            let wrong = 0;
+            answeredKeys.forEach(id => {
+                if (userAnswers[id].isCorrect) correct++;
+                else wrong++;
+            });
+
+            document.getElementById('stats-correct').innerText = correct;
+            document.getElementById('stats-wrong').innerText = wrong;
+            
+            const accuracy = answeredCount > 0 ? Math.round((correct / answeredCount) * 100) : 0;
+            document.getElementById('stats-accuracy').innerText = `${accuracy}%`;
+
+            // Update adventure rank
+            const rankName = document.getElementById('rank-name');
+            const rankIcon = document.getElementById('rank-icon');
+            if (correct >= 13) {
+                rankName.innerText = "Mahadewa Pecahan";
+                rankIcon.innerText = "👑";
+            } else if (correct >= 8) {
+                rankName.innerText = "Kesatria Aljabar";
+                rankIcon.innerText = "⚔️";
+            } else if (correct >= 3) {
+                rankName.innerText = "Magang Sihir";
+                rankIcon.innerText = "🔮";
+            } else {
+                rankName.innerText = "Taruna Pecahan";
+                rankIcon.innerText = "🛡️";
+            }
+        }
+
+        function navigateQuestion(dir) {
+            playSound('click');
+            const nextIdx = currentIdx + dir;
+            if (nextIdx >= 0 && nextIdx < questionsDb.length) {
+                loadQuestion(nextIdx);
+            }
+        }
+
+        // --- 5. TOAST ---
+        function showToast(text, bgClass) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toast.className = `fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 text-white font-black px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce ${bgClass}`;
+            toastText.innerText = text;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- 6. CANVA DOODLE SCRATCHPAD ---
+        const sCanvas = document.getElementById('scratch-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let drawing = false;
+
+        function toggleScratchpad() {
+            playSound('click');
+            const pad = document.getElementById('scratchpad');
+            pad.classList.toggle('hidden');
+            if (!pad.classList.contains('hidden')) {
+                resizeCanvas();
+            }
+        }
+
+        function initScratchpad() {
+            sCanvas.addEventListener('mousedown', (e) => {
+                drawing = true;
+                sCtx.beginPath();
+                const rect = sCanvas.getBoundingClientRect();
+                sCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            });
+            sCanvas.addEventListener('mousemove', (e) => {
+                if (!drawing) return;
+                const rect = sCanvas.getBoundingClientRect();
+                sCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                sCtx.stroke();
+            });
+            window.addEventListener('mouseup', () => drawing = false);
+
+            sCanvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                drawing = true;
+                sCtx.beginPath();
+                const t = e.touches[0];
+                const rect = sCanvas.getBoundingClientRect();
+                sCtx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+            });
+            sCanvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!drawing) return;
+                const t = e.touches[0];
+                const rect = sCanvas.getBoundingClientRect();
+                sCtx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+                sCtx.stroke();
+            });
+            window.addEventListener('touchend', () => drawing = false);
+        }
+
+        function resizeCanvas() {
+            const parent = sCanvas.parentNode;
+            sCanvas.width = parent.clientWidth;
+            sCanvas.height = parent.clientHeight;
+            sCtx.lineCap = 'round';
+            sCtx.lineWidth = 3.5;
+            sCtx.strokeStyle = '#4F46E5'; 
+        }
+
+        function clearCanvas() {
+            playSound('click');
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+        }
+
+        // --- 7. CONFETTI CELEBRATION ---
+        const confettiCanvas = document.getElementById('confetti');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiActive = false;
+        let particles = [];
+
+        function triggerConfetti() {
+            confettiActive = true;
+            confettiCanvas.classList.remove('hidden');
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            
+            particles = [];
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    r: Math.random() * 5 + 4,
+                    d: Math.random() * confettiCanvas.height,
+                    color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            animateConfetti();
+            setTimeout(() => {
+                confettiActive = false;
+                confettiCanvas.classList.add('hidden');
+            }, 2500);
+        }
+
+        function animateConfetti() {
+            if (!confettiActive) return;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            
+            particles.forEach((p, idx) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                p.x += Math.sin(p.tiltAngle);
+                p.tilt = Math.sin(p.tiltAngle - idx / 3) * 15;
+
+                confettiCtx.beginPath();
+                confettiCtx.lineWidth = p.r;
+                confettiCtx.strokeStyle = p.color;
+                confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                confettiCtx.stroke();
+            });
+
+            requestAnimationFrame(animateConfetti);
+        }
+    </script>
+</body>
+</html>
